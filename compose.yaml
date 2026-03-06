@@ -1,0 +1,13 @@
+services:
+  currency-api:
+    image: 9rock/currency-api:production-v1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: currency-api
+    platform: linux/amd64
+    ports:
+      - "2050:2050"
+    environment:
+      - ORIGIN_URL=${ORIGIN_URL}
+    restart: unless-stopped

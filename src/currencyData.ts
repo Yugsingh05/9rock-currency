@@ -1,26 +1,46 @@
-export const currencyData = {
-        INR: 1,
-        USD: 0.01085,
-        AUD: 0.01536,
-        EUR: 0.009333,
-        CAD: 0.01483,
-        CZK: 0.2274,
-        DKK: 0.06962,
-        HKD: 0.08488,
-        ILS: 0.03335,
-        JPY: 1.7058,
-        KWD: 0.003331,
-        MYR: 0.0428,
-        NZD: 0.01829,
-        NOK: 0.1047,
-        PLN: 0.03982,
-        QAR: 0.03948,
-        SAR: 0.04067,
-        SGD: 0.01384,
-        ZAR: 0.1775,
-        KRW: 15.8731,
-        SEK: 0.09967,
-        AED: 0.03983,
-        GBP: 0.008123,
-      
-      }
+import axios from "axios";
+
+export const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+export let cachedCurrencyData: Record<string, number> | null = null;
+export let cachedAt = 0;
+
+export const fetchAndCacheCurrencyData = async () => {
+  const url = `${process.env.CURRENCY_API_URL}`;
+  const response = await axios.get(url);
+
+  if (response.status !== 200) {
+    throw new Error(`Currency API returned status ${response.status}`);
+  }
+
+  const data = response.data.conversion_rates;
+  const newCurrencyData = {
+    INR: 1,
+    USD: data.USD,
+    AUD: data.AUD,
+    EUR: data.EUR,
+    CAD: data.CAD,
+    CZK: data.CZK,
+    DKK: data.DKK,
+    HKD: data.HKD,
+    ILS: data.ILS,
+    JPY: data.JPY,
+    KWD: data.KWD,
+    MYR: data.MYR,
+    NZD: data.NZD,
+    NOK: data.NOK,
+    PLN: data.PLN,
+    QAR: data.QAR,
+    SAR: data.SAR,
+    SGD: data.SGD,
+    ZAR: data.ZAR,
+    KRW: data.KRW,
+    SEK: data.SEK,
+    AED: data.AED,
+    GBP: data.GBP,
+  };
+
+  cachedCurrencyData = newCurrencyData;
+  cachedAt = Date.now();
+  return newCurrencyData;
+};

@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: currency-refresh
+  namespace: currency-api
+spec:
+  # Every night at 00:00 (cluster local time)
+  schedule: "0 0 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      ttlSecondsAfterFinished: 300
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: currency-refresh
+              image: curlimages/curl:8.10.1
+              env:
+                - name: CURRENCY_API_BASE_URL
+                  value: "http://currency-api-service.currency-api.svc.cluster.local:2050"
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -euo pipefail
+                  echo "Calling ${CURRENCY_API_BASE_URL}/currency to refresh cache"
+                  curl --fail --show-error --silent \
+                    --request POST "${CURRENCY_API_BASE_URL}/currency"
+                  echo "Currency refresh request completed"

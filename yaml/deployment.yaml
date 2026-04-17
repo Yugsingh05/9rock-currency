@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: currency-api
-          image: 9rock/currency-api:production-v1
+          image: 9rock/currency-api:production-v2
           imagePullPolicy: Always
           ports:
             - containerPort: 2050
@@ -36,3 +36,12 @@ spec:
           env:
             - name: ORIGIN_URL
               value: "https://9rock.in"
+
+            - name: CURRENCY_API_URL
+              valueFrom:
+                secretKeyRef:
+                  name: currency-api-secrets
+                  key: CURRENCY_API_URL
+
+            - name: ENVIRONMENT
+              value: "production"
